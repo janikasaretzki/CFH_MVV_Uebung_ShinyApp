@@ -1,0 +1,536 @@
+---
+title: "CFH München, Multivariate Verfahren - Übungen"
+output: 
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+    toc: true
+    toc_depth: 4
+css: styles.css
+runtime: shiny_prerendered
+---
+
+<style>
+
+body {
+  background-color: #f0f0f0;
+  font-family: Arial, sans-serif;
+  font-size: 14px; 
+}
+
+h1 {
+  color: #333333;
+  font-size: 14px; 
+}
+
+p {
+  font-size: 14px; 
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 50%; 
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #dddddd;
+  padding: 8px;
+  text-align: left;
+  font-size: 14px; 
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+img {
+  width: 100%; 
+  max-width: 500px; 
+  height: auto;
+  display: block;
+  margin: 20px 0; 
+  text-align: left; 
+}
+</style>
+
+```{r setup, include=FALSE}
+
+options(repos = c(CRAN = "https://cloud.r-project.org")) 
+
+for (package in c("learnr", "psych", "shiny", "faux", "tidyverse", "exams2learnr", "knitr", "moments", "magrittr", "kableExtra", "ggplot2", "truncnorm", "sjPlot")) {
+  if (!require(package, character.only = TRUE, quietly = TRUE)) {  
+    install.packages(package)  
+  }
+  library(package, character.only = TRUE, quietly = TRUE)  
+}
+
+```
+
+## Herzlich Willkommen!
+
+Diese interaktive Plattform wurde speziell für den Kurs **Empirisch-wissenschaftliches Arbeiten - Multivariate Verfahren (Datenerheung/-auswertung/-interpretation)** entwickelt, um Ihnen eine praktische und anschauliche Lernumgebung zu bieten. Mit dieser Oberfläche haben Sie die Möglichkeit, die im Seminar und der Übung erworbenen Fähigkeiten unmittelbar anzuwenden und zu vertiefen.
+
+Auf dieser Plattform finden Sie eine Vielzahl von Beispielen und Übungen, die darauf ausgelegt sind, Ihr Verständnis von R und RStudio zu verbessern. Jede Übung ist darauf ausgerichtet, spezifische Konzepte und Techniken zu vermitteln, sodass Sie Ihr Wissen erweitern und festigen können.
+
+Beginnen Sie nun, indem Sie eine der verfügbaren Übungen auswählen. Die interaktive Oberfläche ermöglicht es Ihnen, sofort Feedback zu Ihren Lösungen zu erhalten und bei Bedarf Änderungen vorzunehmen. Nutzen Sie diese Gelegenheit, um in Ihrem eigenen Tempo zu üben und zu lernen.
+
+
+Viel Erfolg und Spaß beim Entdecken der Möglichkeiten mit R und RStudio! 
+
+Stephan Goerigk und Janika Saretzki
+
+## Mehrebenenanalyse - Lineare gemischte Modelle
+In dieser Übung untersuchen Sie, ob sich die Mathematikleitung zwischen Schulen unterscheidet und wie sich verschiedene Variablen auf diese Leistung auswirken. Dafür wenden wir schrittweise verschiedene **lineare gemischte Modelle (LMMs)** an.
+
+Wir beginnen mit einem **einfachen Modell**, das überprüft, ob sich die durchschnittliche Mathematikleistung zwischen den Schulen unterscheidet. Anschließend erweitern wir das Modell schrittweise um feste und zufällige Effekte, um zu analysieren, ob sich individuelle Unterschiede (z.B. sozioökonomischer Status, Geschlecht) oder schulbezogene Faktoren (z.B. Schulgröße, Schultyp) auf die Mathematikleistung auswirken.
+
+Am Ende dieser ersten Übungsreihe werden Sie nicht nur verschiedene **Mehrebenenmodelle** (z.B. **Random-Intercept- und Random-Slope-Modelle**) beherrschen, sondern auch erste Einblicke in **Wachstumskurvenmodelle** gewinnen, die mit denselben Methoden geschätzt werden können.
+
+<hr style="border: 0.1px solid grey;">
+
+Für die nachfolgenden Analysen verwenden wir den Datensatz LMM.csv, der Informationen zu 160 Schulen und 7.185 Schülern enthält. Der Datensätz besteht aus zwei Ebenen:
+
+* **Ebene 1: Schülerebene, Level-1-Variablen:** MathAch (Mathematikleistung, abhängige Variable), SES (Sozioökonomischer Status), Sex (Geschlecht), Minority (Minderheitenzugehörigkeit)
+
+* **Ebene 2: Schulebene, Level-2-Variablen:** School (Schul-ID), Size (Schulgröße), Sector (Schultyp: Public vs. Catholic), PRACAD (Anteil der Schüler im akademischen Track), DISCLIM (wahrgenommene Diziplinprobleme), MeanSES (durchschnittlicher sozioökonomischer Status der Schule)
+
+### Einfaches lineares Regressionsmodell
+Zunächst berechnen wir ein **klassisches lineares Regressionsmodell**, in dem die Mathematikleistung (MathAch) durch die Schule (School) vorhergesagt wird. Damit überprüfen wir, ob es erkennbare Unterschiede zwischen den Schulen gibt.
+
+**Aufgabe:** Lesen Sie den Datensatz LMM.csv über GitHub ein. Schätzen Sie anschließend ein einfaches lineares Modell, in dem MathAch durch School als kategorial Variable vorhergesagt wird, um zu überprüfen, ob es auf den ersten Blick erkennbare Unterschiede zwischen den Schulen gibt.
+
+```{r LMM1, exercise=TRUE}
+
+data = read.csv("https://raw.githubusercontent.com/janikasaretzki/CFH_MVV_Uebung_ShinyApp/refs/heads/main/LMM.csv")
+
+```
+
+```{r LMM1-solution}
+
+data = read.csv("https://raw.githubusercontent.com/janikasaretzki/CFH_MVV_Uebung_ShinyApp/refs/heads/main/LMM.csv")
+
+names(data)
+colSums(is.na(data)) # Keine fehlenden Werte (NAs) im Datensatz
+
+model1 = lm(MathAch ~ 0 + School, data=data)
+summary(model1)
+
+# Das Modell zeigt, dass 81,76% der Varianz in der Mathematikleistung (MathAch) durch Unterschiede zwischen den Schulen erklärt werden, was auf deutliche Leistungsdifferenzen hinweist. Der F-Test ist hochsignifikant (p < 2.2e-16), was bedeutet, dass die Schule einen systematischen Einfluss auf die Mathematikleistung hat. Die Residualstandardabweichung von 6.256 zeigt, dass noch eine beträchtliche Variation innerhalb der Schulen besteht. Die geschätzten Schul-spezifischen Koeffizienten deuten darauf hin, dass einige Schulen deutlich höhere oder niedrigere Durchschnittswerte aufweisen als andere. 
+# Insgesamt bestätigt das Modell, dass die Schule eine zentrale Rolle für die Mathematikleistung spielt, wobei ein gemischtes Modell notwendig ist, um zufällige und feste Effekte zu unterscheiden.
+
+```
+
+### Unconditional Random Effects Model (UREM)
+Berechnen Sie nun ein gemischtes lineares Modell mit zufälligem Intercept, um zu untersuchen, wie viel der Gesamtvarianz der Mathematikleistung (MatchAch) durch Unterschiede zwischen den Schulen erklärt wird. 
+
+Verwenden Sie dazu die lmer()-Funktion aus dem lme4-Paket und schätzen Sie ein Modell mit MathAch als abhängige Variable und einem zufälligen Intercept für School.
+
+```{r LMM2, exercise=TRUE}
+
+data = read.csv("https://raw.githubusercontent.com/janikasaretzki/CFH_MVV_Uebung_ShinyApp/refs/heads/main/LMM.csv")
+
+```
+
+```{r LMM2-solution}
+
+# install.packages(lme4)
+library(lme4)
+
+data = read.csv("https://raw.githubusercontent.com/janikasaretzki/CFH_MVV_Uebung_ShinyApp/refs/heads/main/LMM.csv")
+
+model2 = lmer(MathAch ~ 1 + (1|School), data = data)
+summary(model2)
+
+# Das Modell zeigt, dass die durchschnittliche Mathematikleistung (MathAch) über alle Schulen hinweg 12.64 beträgt (Intercept). Die zwischen-schulische Varianz beträgt 8.614, während die innerhalb-schulische Varianz (Residuen) 39.148 beträgt. Das bedeutet, dass es Unterschiede zwischen den Schulen gibt, aber ein Großteil der Varianz innerhalb der Schulen liegt.
+
+```
+
+#### Intra-Class-Correlation (ICC)
+Berechnen Sie die Intra-Klassen-Korrelation (ICC), um zu quantifizieren, wie viel der Gesamtvarianz in der Mathematikleistung (MathAch) durch Unterschiede zwischen den Schulen erklärt wird. Die ICC gibt an, welcher Anteil der Gesamtvarianz auf die Schulebene zurückzuführen ist und damit den Einfluss der hierarchischen Struktur auf die Mathematikleistung widerspiegelt.
+
+```{r ICC, exercise=TRUE}
+
+```
+
+```{r ICC-solution}
+
+8.614 / (8.614 + 39.148)
+
+# Die berechnete Intra-Klassen-Korrelation (ICC) beträgt 0.18, was bedeutet, dass 18 % der Gesamtvarianz in der Mathematikleistung durch Unterschiede zwischen den Schulen erklärt werden können, während die verbleibenden 82 % auf individuelle Unterschiede innerhalb der Schulen zurückzuführen sind. Dies bestätigt, dass die Schulebene eine wichtige Rolle spielt, aber ein großer Teil der Variation durch schülerbezogene Faktoren bedingt ist, sodass ein Mehrebenenmodell zur simultanen Berücksichtigung beider Ebenen gerechtfertigt ist.
+
+```
+
+### Random Intercept, Random Slope Modell
+Testen Sie nun die Hypothese, dass die Mathematikleistung (MathAch) mit dem sozioökonomischen Status der Eltern (SES) zusammenhängt. Dazu wird ein Random Intercept, Random Slope Modell geschätzt, in dem sowohl der durchschnittliche Leistungsunterschied zwischen den Schulen als auch die Variation des SES-Effekts zwischen den Schulen berücksichtigt werden.
+
+```{r LMM3, exercise=TRUE}
+
+data = read.csv("https://raw.githubusercontent.com/janikasaretzki/CFH_MVV_Uebung_ShinyApp/refs/heads/main/LMM.csv")
+
+```
+
+```{r LMM3-solution}
+
+# install.packages(lme4)
+library(lme4)
+
+data = read.csv("https://raw.githubusercontent.com/janikasaretzki/CFH_MVV_Uebung_ShinyApp/refs/heads/main/LMM.csv")
+
+model3 = lmer(MathAch ~ 1 + SES + (1 + SES|School), data=data)
+summary(model3)
+
+# Das Random Intercept, Random Slope Modell zeigt, dass die Mathematikleistung (MathAch) signifikant mit dem sozioökonomischen Status (SES) der Eltern zusammenhängt. Der geschätzte feste Effekt von SES beträgt 2.39 (SE = 0.12, t = 20.27), was darauf hindeutet, dass ein höherer sozioökonomischer Status mit besseren Mathematikleistungen assoziiert ist. Die zufälligen Effekte zeigen, dass die durchschnittliche Mathematikleistung zwischen den Schulen variiert (Varianz Intercept = 4.83, SD = 2.20), während auch der Einfluss von SES auf MathAch zwischen den Schulen unterschiedlich ausfällt (Varianz SES = 0.41, SD = 0.64). Die negative Korrelation (-0.11) zwischen dem zufälligen Intercept und der zufälligen Steigung deutet darauf hin, dass Schulen mit insgesamt höherer Mathematikleistung tendenziell einen geringeren SES-Einfluss auf die Leistung aufweisen. Der verbleibende Fehler (Residualvarianz = 36.83, SD = 6.07) zeigt, dass individuelle Unterschiede innerhalb der Schulen weiterhin eine große Rolle spielen.
+
+```
+
+### Random Intercept, Random Slope Modell mit Interaktionseffekt
+Testen Sie nun die Hypothese, dass der Einfluss des sozioökonomischen Status der Eltern (SES) auf die Mathematikleistung (MathAch) zwischen den Schulen variiert. Dazu wird ein Random Intercept, Random Slope Modell geschätzt, das sowohl die durchschnittlichen Leistungsunterschiede zwischen den Schulen als auch die Variation des SES-Effekts zwischen den Schulen berücksichtigt.
+
+```{r LMM4, exercise=TRUE}
+
+data = read.csv("https://raw.githubusercontent.com/janikasaretzki/CFH_MVV_Uebung_ShinyApp/refs/heads/main/LMM.csv")
+
+```
+
+```{r LMM4-solution}
+
+data = read.csv("https://raw.githubusercontent.com/janikasaretzki/CFH_MVV_Uebung_ShinyApp/refs/heads/main/LMM.csv")
+
+model4 <- lmer(MathAch ~ 1 + SES + Sector + SES:Sector + (1 + SES|School), data = data)
+summary(model4)
+
+# Das Random Intercept, Random Slope Modell mit Interaktionseffekt zeigt, dass sowohl der sozioökonomische Status der Eltern (SES) als auch der Schultyp (Sector: Public vs. Catholic) signifikante Einflüsse auf die Mathematikleistung (MathAch) haben. Der positive SES-Effekt (1.64, SE = 0.16, t = 10.20) zeigt, dass Schüler aus wohlhabenderen Familien tendenziell bessere Mathematikleistungen erzielen. Der negative Effekt von SectorPublic (-2.13, SE = 0.35, t = -6.15) bedeutet, dass Schüler an öffentlichen Schulen im Durchschnitt niedrigere Mathematikleistungen aufweisen als Schüler an katholischen Schulen. Der signifikante Interaktionseffekt (1.31, SE = 0.22, t = 6.09) deutet darauf hin, dass der positive Einfluss von SES auf die Mathematikleistung an öffentlichen Schulen stärker ausgeprägt ist als an katholischen Schulen. Die zufällige Varianz von SES zwischen den Schulen ist jedoch sehr gering (0.08), und die Korrelation zwischen Intercept und SES-Slope ist 1.00, was auf eine Singularitätswarnung hinweist. Dies bedeutet, dass das Modell möglicherweise zu komplex für die Daten ist, da die zufällige Variation von SES praktisch null ist. Ein einfacheres Modell ohne zufälligen SES-Slope könnte daher sinnvoll sein.
+
+```
+
+### Wachstumskurvenmodelle
+
+### Einfaches Wachstumskurvenmodell (ohne Prädiktor)
+
+#### Random Intercept, Fixed Slope Model
+
+#### Random Intercept, Random Slope Model
+
+### Konditionales Wachstumskurvenmodell (mit Prädiktor)
+
+#### Random Intercept, Random Slope Model (2 Gruppen)
+
+#### Random Intercept, Random Slope Model (3 Gruppen)
+
+### Poweranalyse
+
+---
+
+## Gruppieren
+### Clusteranalyse
+
+
+
+### Faktorenanalyse
+Das NEO-Fünf-Faktoren-Inventar (NEO-FFI) ist ein psychometrisches Instrument zur Erfassung der fünf grundlegenden Persönlichkeitsdimensionen Neurotizismus, Extraversion, Offenheit für Erfahrungen, Verträglichkeit und Gewissenhaftigkeit. In den folgenden Übungen soll untersucht werden, ob sich diese Struktur in den gegebenen Daten widerspiegelt.
+
+**Hinweis: Die Daten wurden bereits korrigiert und richtig gepolt, sodass eine direkte Anwendung möglich ist.**
+
+#### Explorative Faktorenanalyse (EFA)
+In dieser Aufgabe sollen Sie sich in die Rolle der ursprünglichen Forscher:innen versetzen, die zunächst untersuchen mussten, welche Faktoren in den Daten besteht. Dadurch gewinnen Sie ein besseres Verständnis für die methodische Herangehensweise und Herausforderungen bei der Modellbestimmung.
+
+**Aufgabe**
+
+Laden Sie den Datensatz *FA.csv* über GitHub ein und verschaffen Sie sich einen Überblick über die enthaltenen Variablen. Analysieren Sie anschließend die Daten, um herauszufinden, ob sich die erwarteten fünf Persönlichkeitsdimensionen empirisch bestätigen lassen.
+
+```{r EFA, exercise=TRUE}
+
+data = read.csv("https://raw.githubusercontent.com/janikasaretzki/CFH_MVV_Uebung_ShinyApp/refs/heads/main/FA.csv")
+
+
+```
+
+```{r EFA-solution}
+
+# install.packages("haven")
+# install.packages("psych")
+
+library(haven)
+library(psych)
+
+
+data = read.csv("https://raw.githubusercontent.com/janikasaretzki/CFH_MVV_Uebung_ShinyApp/refs/heads/main/FA.csv")
+
+names(data)
+colSums(is.na(data)) # Keine fehlenden Werte (NAs) im Datensatz
+
+# Stichprobenbeschreibung
+nrow(data)
+
+table(data$Sex)
+round(prop.table(table(data$Sex)) * 100, 1)
+
+min(data$Age) 
+max(data$Age) 
+
+round(mean(data$Age), 2)
+round(sd(data$Age), 2)
+
+# N = 101 (54.5% Frauen, 45.5% Männer) im Alter von 18 bis 60 Jahren (M = 29.36; SD = 10.04)
+
+
+# Explorative Faktorenanalyse
+data = subset(data, select = -c(Sex, Age))
+names(data)
+
+KMO(data) # KMO Kriterium (Kaiser-Meyer-Olkin Kriterium)
+cortest.bartlett(cor(data)) # Bartlett-Test auf Sphärizität
+
+fa.parallel(data, fm="ml") # Anzahl der Faktoren = 5
+fa(data, nfactors = 5, fm = "ml", rotate = "promax")$loadings # Faktorenrotation
+fa(data, nfactors = 3, fm = "ml", rotate = "promax")$communalities # Kommunalitäten
+
+# Die Ergebnisse liefern erste Hinweise auf die zugrunde liegende Struktur der Daten. Das Kaiser-Meyer-Olkin-Kriterium (KMO) beträgt 0.53, was auf eine mäßige Faktorisierbarkeit der Daten hinweist. Einzelne Items zeigen jedoch niedrige MSA-Werte unter 0.50, was auf problematische Variablen hindeutet. Der Bartlett-Test auf Sphärizität ist signifikant (χ²(1770) = 3108.03, p < .001), was bedeutet, dass die Korrelationsmatrix nicht zufällig ist und sich grundsätzlich für eine Faktorenanalyse eignet. Die Bestimmung der Faktorenanzahl mithilfe der Parallelanalyse schlägt fünf Faktoren vor, was mit der theoretischen Erwartung der NEO-FFI-Dimensionen übereinstimmt. Die Faktorenrotation ergab ein fünf-Faktoren-Modell, wobei die Summen der Faktorladungen für die ersten drei Faktoren am höchsten sind. Einige Items zeigen Querladungen oder niedrige Ladungen unter .30, was auf potenzielle Probleme in der Messstruktur hindeutet. Die erklärte Gesamtvarianz der fünf Faktoren beträgt 33.9 %, wobei der erste Faktor den größten Beitrag leistet. Die Kommunalitäten, die angeben, wie gut ein Item durch die extrahierten Faktoren erklärt wird, sind unterschiedlich ausgeprägt. Einige Items haben niedrige Werte, was darauf hindeutet, dass sie von den extrahierten Faktoren nur unzureichend erfasst werden. Ein alternatives Modell mit nur drei Faktoren zeigt geringere Kommunalitäten und könnte darauf hinweisen, dass eine Reduktion der Faktorenanzahl mit Informationsverlust einhergeht. 
+
+# Die explorative Faktorenanalyse unterstützt grundsätzlich die Existenz von fünf Faktoren, allerdings mit einigen Abweichungen. Die Faktorenstruktur ist nicht durchgängig klar erkennbar, da einige Items unerwartete Ladungsmuster zeigen. Eine konfirmatorische Faktorenanalyse (CFA) könnte eine weiterführende Prüfung ermöglichen, um zu klären, ob das theoretische Modell des NEO-FFI mit den empirischen Daten übereinstimmt.
+
+```
+
+
+#### Konfirmatorische Faktorenanalyse (CFA)
+
+**Fragestellung: Lässt sich die Fünf-Faktoren-Struktur des NEO-FFI konfirmatorisch bestätigen?**
+
+Während in der explorativen Faktorenanalyse (EFA) ohne eine vorab definierte Struktur untersucht wurde, wie sich die Items empirisch gruppieren, wird in dieser Aufgabe nun ein konfirmatorisches Modell getestet, um zu überprüfen, ob die theoretische Fünf-Faktoren-Struktur des NEO-FFI durch die Daten gestützt wird.
+In dieser Aufgabe sollen Sie sich in die Rolle der Forschenden versetzen, die nach der explorativen Phase nun eine Hypothese über die Faktorstruktur testen möchten. Dabei sollen Sie sich mit der Modellanpassung, den Faktorladungen und möglichen Modifikationen auseinandersetzen, um zu evaluieren, inwiefern das Modell eine adäquate Repräsentation der Persönlichkeitsstruktur bietet.
+
+
+**Aufgabe:** Laden Sie den Datensatz *FA.csv* über GitHub ein. Definieren Sie anschließend ein konfirmatorisches Faktorenmodell (CFA) auf Basis der fünf theoretisch angenommenen Persönlichkeitsdimensionsn und überprüfen Sie die Modellpassung.
+
+<hr style="border: 0.1px solid grey;">
+
+Faktorenstruktur:
+
+* **Neurotizismus (N):** N1, N6, N11, N16, N21, N26, N31, N36, N41, N46, N51, N56
+
+* **Extraversion (E):** N2, N7, N12, N17, N22, N27, N32, N37, N42, N47, N52, N57
+
+* **Offenheit (O):** N3, N8, N13, N18, N23, N28, N33, N38, N43, N48, N53, N58
+
+* **Verträglichkeit (V):** N4, N9, N14, N19, N24, N29, N34, N39, N44, N49, N54, N59
+
+* **Gewissenhaftigkeit (G):** N5, N10, N15, N20, N25, N30, N35, N40, N45, N50, N55, N60
+
+```{r CFA, exercise=TRUE}
+
+data = read.csv("https://raw.githubusercontent.com/janikasaretzki/CFH_MVV_Uebung_ShinyApp/refs/heads/main/FA.csv")
+
+```
+
+```{r CFA-solution}
+
+# install.packages("lavaan")
+library(lavaan)
+
+data = read.csv("https://raw.githubusercontent.com/janikasaretzki/CFH_MVV_Uebung_ShinyApp/refs/heads/main/FA.csv")
+
+model <- '
+  N =~ N1 + N6 + N11 + N16 + N21 + N26 + N31 + N36 + N41 + N46 + N51 + N56
+  E =~ N2 + N7 + N12 + N17 + N22 + N27 + N32 + N37 + N42 + N47 + N52 + N57
+  O =~ N3 + N8 + N13 + N18 + N23 + N28 + N33 + N38 + N43 + N48 + N53 + N58
+  V =~ N4 + N9 + N14 + N19 + N24 + N29 + N34 + N39 + N44 + N49 + N54 + N59
+  G =~ N5 + N10 + N15 + N20 + N25 + N30 + N35 + N40 + N45 + N50 + N55 + N60
+'
+
+fit = cfa(model, data = data)
+summary(fit, fit.measures = TRUE, standardized = TRUE)
+
+# Die Ergebnisse der konfirmatorischen Faktorenanalyse zeigen, dass die theoretisch angenommene Fünf-Faktoren-Struktur des NEO-FFI nur eingeschränkt durch die Daten unterstützt wird. Der Chi-Quadrat-Test ist signifikant (χ² = 2914.293, df = 1700, p < .001), was formal gegen eine perfekte Modellpassung spricht. Die Fit-Indizes deuten ebenfalls auf eine unzureichende Modellgüte hin: Der CFI (0.459) und TLI (0.437) liegen deutlich unter dem akzeptablen Bereich (≥ .90), was darauf hindeutet, dass das Modell die Daten nicht optimal repräsentiert. Zudem ist der RMSEA-Wert von 0.084 mit einem oberen Konfidenzintervall von 0.089 zu hoch, was für eine ungenügende Modellanpassung spricht. Auch der SRMR-Wert von 0.111 überschreitet die empfohlene Obergrenze von 0.08, was auf hohe Residuen im Modell hindeutet. Die standardisierten Faktorladungen zeigen, dass einige Items hohe Ladungen auf den jeweiligen latenten Variablen aufweisen (z. B. N16 auf Neurotizismus mit λ = 0.721, N37 auf Extraversion mit λ = 0.752). Allerdings gibt es auch Items mit sehr niedrigen Ladungen, wie z. B. N56 auf Neurotizismus (λ = 0.049) und N47 auf Extraversion (λ = -0.048), was darauf hindeutet, dass diese Items möglicherweise nicht gut in das Modell passen. Die Kovarianzen zwischen den Faktoren zeigen, dass einige erwartete Zusammenhänge nur schwach ausgeprägt sind oder sogar negativ ausfallen. Beispielsweise ist die Korrelation zwischen Neurotizismus und Extraversion negativ und signifikant (-0.652), was der Theorie entspricht. Andere Korrelationen, wie die zwischen Offenheit und Gewissenhaftigkeit (-0.247), sind jedoch sehr niedrig und nicht signifikant, was auf eine geringe empirische Unterstützung für diesen Zusammenhang hindeutet.
+
+# Zusatzfrage
+## Mögliche Modellverbesserungen könnten beinhalten: (1) Entfernen oder Modifizieren von Items mit sehr niedrigen Faktorladungen, (2) Zulassen von Korrelationen zwischen Fehlertermen, um gemeinsame Varianzanteile zwischen stark verbundenen Items zu erfassen oder (3) Testen alternativer Faktorenstrukturen, z. B. ein Modell mit höher geordnetem Faktor „Big Five“ oder einem bifaktoriellen Ansatz
+
+```
+
+## Multivariate (latente) Modellierung
+### Strukturgleichungsmodell
+**Fragestellung: Kann Offenheit Quantitatives Denken vorhersagen?**
+
+In dieser Übung untersuchen Sie, ob der Persönlichkeitsfaktor Offenheit eine Vorhersagekraft für Quantitatives Denken besitzt. Dafür wird ein Strukturgleichungsmodell geschätzt, in dem Offenheit als latente Variable mit drei Indikatoren modelliert wird und Quantitatives Denken als latente Variable mit drei Indikatoren erfasst wird. 
+
+**Aufgabe:** Laden Sie den Datensatz *SEM.xlsx* über GitHub ein und verschaffen Sie sich einen Überblick über die enthaltenen Variablen. Definieren Sie ein Strukturgleichungsmodell mit Offenheit als Prädiktor für Quantitatives Denken und visualisieren Sie die Modellstruktur grafisch.
+
+* **Latente Variable Offenheit:** Offenheit für Phantasie (Variable O1), Offenheit für Handlungen (Variable O2), Offenheit für Ideen (Variable O3)
+
+* **Latente Variable Quantitatives Denken:** Arithmetische Schätzfähigkeit (Variable QD1), Arithmetische Kompetenz (Variable QD2), Arithmetische Flexibilität (Variable QD3)
+
+<hr style="border: 0.1px solid grey;">
+
+Schätzen Sie das Modell in `lavaan` und interpretieren Sie die Ergebnisse:
+
+* Ist der Effekt von Offenheit auf Quantitatives Denken signifikant?
+
+* Wie gut passt das Modell zu den Daten? Berüchsichtigen Sie dabei den Modell-Test sowie die Modell-Fit-Indizes CFI, RMSEA und SRMR.
+
+* Welche Indikatoren haben die höchste Ladung auf ihren latenten Variablen?
+
+<hr style="border: 0.1px solid grey;">
+
+Zusatzfrage zur Vertiefung: Welche Modifikationen könnten vorgenommen werden, um die Modellgüte zu verbessern?
+
+```{r SEM, exercise=TRUE}
+
+data = read.csv("https://raw.githubusercontent.com/janikasaretzki/CFH_MVV_Uebung_ShinyApp/refs/heads/main/SEM.csv")
+
+```
+
+```{r SEM-solution}
+
+# install.packages("lavaan")
+# install.packages("readxl")
+# install.packages("semPlot")
+
+library(lavaan)
+library(readxl)
+library(semPlot)
+
+data = read.csv("https://raw.githubusercontent.com/janikasaretzki/CFH_MVV_Uebung_ShinyApp/refs/heads/main/SEM.csv")
+
+names(data)
+colSums(is.na(data)) # Keine fehlenden Werte (NAs) im Datensatz
+
+# Stichprobenbeschreibung
+nrow(data)
+
+table(data$Sex)
+round(prop.table(table(data$Sex)) * 100, 1)
+
+min(data$Age) 
+max(data$Age) 
+
+round(mean(data$Age), 2)
+round(sd(data$Age), 2)
+
+# N = 303 (51.8% Frauen, 48.2% Männer) im Alter von 18 bis 65 Jahren (M = 41.11; SD = 12.94)
+
+
+# Strukturgleichungsmodell
+model = '
+  # Latente Variable: Offenheit
+  Offenheit =~ O1 + O2 + O3
+
+  # Latente Variable: Quantitatives Denken
+  Quantitatives_Denken =~ QD1 + QD2 + QD3
+
+  # Strukturelle Beziehung
+  Quantitatives_Denken ~ Offenheit
+'
+
+fit = sem(model, data = data)
+summary(fit, fit.measures = TRUE, standardized = TRUE, rsquare = TRUE)
+
+
+semPaths(fit, what = "std", layout = "tree", edge.label.cex = 1.2, 
+         residuals = FALSE, nCharNodes = 0, intercepts = FALSE)
+  
+# Modell-Fit
+## Das Modell zeigt einen guten Modell-Fit: Der Chi-Quadrat-Test ist nicht signifikant (χ²(8) = 11.161, p = .193), was darauf hinweist, dass das Modell nicht signifikant von den Daten abweicht. Die Fit-Indizes bestätigen dies: Der CFI = 0.994 liegt über dem kritischen Wert von 0.95, was auf eine sehr gute Modellanpassung hindeutet. Der RMSEA-Wert von 0.036 (90%-CI: [0.000, 0.082]) liegt unter dem empfohlenen Grenzwert von 0.06. Der SRMR-Wert von 0.027 ist ebenfalls unter dem kritischen Wert von 0.08, was eine gute Anpassung nahelegt. Fazit: Das Modell passt gut zu den Daten.
+  
+# Ladungen der Indikatoren auf den latenten Variablen
+## Die Indikatoren für Offenheit haben hohe standardisierte Ladungen (O1: 0.746, O2: 0.851, O3: 0.888), was darauf hinweist, dass sie das Konstrukt gut erfassen. Die Indikatoren für Quantitatives Denken zeigen insgesamt niedrigere Ladungen (QD1: 0.635, QD2: 0.523, QD3: 0.478).
+
+# Regression: Offenheit → Quantitatives Denken
+## Der geschätzte Effekt von Offenheit auf Quantitatives Denken ist nicht signifikant (β = -0.051, p = .530). Die Standardisierung zeigt, dass der Zusammenhang sehr schwach ist (std.all = -0.051). Die erklärte Varianz für Quantitatives Denken ist äußerst gering (R² = 0.003), was darauf hinweist, dass Offenheit kaum einen Einfluss hat. Fazit: Es gibt keinen signifikanten Zusammenhang zwischen Offenheit und Quantitativem Denken. Weitere Prädiktoren wären nötig, um Quantitatives Denken besser zu erklären.
+
+# Zusatzfragen
+## Korrelierte Fehlerterme
+model2 = '
+  # Latente Variable: Offenheit
+  Offenheit =~ O1 + O2 + O3
+
+  # Latente Variable: Quantitatives Denken
+  Quantitatives_Denken =~ QD1 + QD2 + QD3
+
+  # Strukturelle Beziehung
+  Quantitatives_Denken ~ Offenheit
+
+  # Korrelierende Fehlerterme innerhalb der latenten Variablen
+  O1 ~~ O2
+  O2 ~~ O3
+  O1 ~~ O3
+
+  QD1 ~~ QD2
+  QD2 ~~ QD3
+  QD1 ~~ QD3
+'
+
+fit2 = sem(model2, data = data)
+summary(fit2, fit.measures = TRUE, standardized = TRUE, rsquare = TRUE)
+
+# Das Modell mit korrelierten Fehlertermen zeigt eine leicht verbesserte Modellanpassung im Vergleich zum ursprünglichen Modell. Der Chi-Quadrat-Test ist weiterhin nicht signifikant (χ²(2) = 2.832, p = .243), was darauf hinweist, dass das Modell die Daten gut beschreibt. Die Fit-Indizes sind minimal verbessert (CFI = 0.998, RMSEA = 0.037, SRMR = 0.013) und deuten auf eine sehr gute Passung hin. Die eingeführten Fehlervarianzen zwischen den Indikatoren von Offenheit und Quantitativem Denken zeigen teils starke Korrelationen (z. B. O1 ~~ O2: -1.669, O2 ~~ O3: 2.568), was darauf hindeutet, dass die Indikatoren methodenspezifische Varianz oder gemeinsame Einflüsse aufweisen.Fazit: Die Berücksichtigung korrelierender Fehlerterme verbessert den Modell-Fit leicht, verändert jedoch die inhaltlichen Schlussfolgerungen kaum. Die Vorhersagekraft von Offenheit auf Quantitatives Denken bleibt weiterhin nicht signifikant (β = -0.085, p = n. s.), sodass die zentrale Hypothese weiterhin nicht gestützt wird.
+
+model3 = '
+  # Latente Variable: Offenheit
+  Offenheit =~ O1 + O2 + O3
+
+  # Latente Variable: Quantitatives Denken
+  Quantitatives_Denken =~ QD1 + QD2 + QD3
+
+  # Geänderte Richtung der Kausalbeziehung
+  Offenheit ~ Quantitatives_Denken
+'
+
+fit3 = sem(model3, data = data)
+summary(fit3, fit.measures = TRUE, standardized = TRUE, rsquare = TRUE)
+
+# Das Modell, in dem Quantitatives Denken als Prädiktor für Offenheit spezifiziert wurde, zeigt eine sehr gute Modellanpassung: Der Chi-Quadrat-Test ist nicht signifikant (χ²(8) = 11.161, p = .193), was darauf hinweist, dass das Modell die Daten gut beschreibt. Die Fit-Indizes bestätigen dies (CFI = 0.994, TLI = 0.989, RMSEA = 0.036, SRMR = 0.027), was mit dem ursprünglichen Modell vergleichbar ist. Allerdings bleibt der Regressionskoeffizient von Quantitativem Denken auf Offenheit nicht signifikant (β = -0.051, p = .532), was bedeutet, dass auch in dieser Modellvariante kein Zusammenhang zwischen den beiden Konstrukten gefunden wird. Die erklärte Varianz von Offenheit ist mit R² = 0.003 verschwindend gering, sodass Quantitatives Denken keine substantielle Erklärungskraft für Offenheit besitzt. Fazit: Die Umkehrung der Kausalrichtung führt zu keiner signifikanten Verbesserung und bestätigt, dass keine klare Beziehung zwischen Offenheit und Quantitativem Denken besteht, unabhängig von der Richtung der Abhängigkeit.
+
+```
+
+#### Konfirmatorische Faktorenanalyse
+
+##### Messinvarianzprüfung
+Ein zentraler Aspekt der psychometrischen Testung ist die Messinvarianz, also die Frage, ob ein Messinstrument über verschiedene Gruppen hinweg die gleiche Bedeutung hat. In dieser Übung soll untersucht werden, ob die zwei-Faktoren-Struktur des Holzinger-Swineford-Datensatzes für Schüler:innen aus zwei verschiedenen Schulen vergleichbar ist.
+
+**Hintergrund und Modell:** Es wird angenommen, dass die Leistung bei den ersten drei Tests (x1, x2, x3) von einer übergeordneten räumlichen Fähigkeit (Spatial) abhängt, während die Leistung bei den anderen drei Tests (x4, x5, x6) auf eine übergeordnete verbale Fähigkeit (Verbal) zurückzuführen ist. Wir spezifizieren daher das Ihnen im Code-Block bereits vorgegebene konfirmatorisches Faktorenmodell (CFA) mit den zwei latenten Faktoren "Spatial" und "Verbal".
+
+**Aufgabe:** Schätzen Sie das vorgegebene konfirmatorische Faktorenmodell (CFA) mit den beiden latenten Faktoren Spatial (räumliche Fähigkeit) und Verbal (verbale Fähigkeit) getrennt für die zwei Schulgruppen. Überprüfen Sie die Messinvarianz anhand der Konfiguralen, Metrischen und Skalare  Invarianz. 
+
+Zudem: Interpretieren Sie die Ergebnisse: Ist die Messinvarianz gegeben, sodass die latenten Konstrukte in beiden Gruppen vergleichbar sind? Falls nicht, welche Einschränkungen ergeben sich für Gruppenvergleiche?
+
+```{r MI, exercise=TRUE}
+
+# install.packages("lavaan")
+library(lavaan)
+
+model = ' 
+          Spatial =~ x1 + x2 + x3
+          Verbal =~ x4 + x5 + x6 
+'
+
+```
+
+```{r MI-solution}
+
+# install.packages("lavaan")
+library(lavaan)
+
+model = ' 
+          Spatial =~ x1 + x2 + x3
+          Verbal =~ x4 + x5 + x6 
+'
+
+names(HolzingerSwineford1939)
+
+fit1 = cfa(model, data = HolzingerSwineford1939, group = "school") # Konfigurale Messinvarianz
+fit2 = cfa(model, data = HolzingerSwineford1939, group = "school", group.equal = "loadings") # Metrische Messinvarianz
+fit3 = cfa(model, data = HolzingerSwineford1939, group = "school", group.equal = c("intercepts", "loadings")) # Skalare Messinvarianz
+
+lavTestLRT(fit1, fit2, fit3)
+
+# Die Ergebnisse der Messinvarianzprüfung zwischen den beiden Schulen zeigen, dass sich die Modellgüte mit zunehmenden Restriktionen verschlechtert. Das Modell der konfiguralen Invarianz (fit1), bei dem die gleiche Faktorenstruktur für beide Gruppen angenommen wird, zeigt eine akzeptable Anpassung an die Daten (χ² = 28.57, df = 16). Beim Übergang zur metrischen Invarianz (fit2), bei der zusätzlich erzwungen wird, dass die Faktorladungen über die Gruppen hinweg gleich sind, zeigt sich eine signifikante Verschlechterung der Modellanpassung (Δχ²(4) = 10.38, p = .034). Dies deutet darauf hin, dass sich die Faktorladungen zwischen den Schulen signifikant unterscheiden, was bedeutet, dass die latenten Faktoren nicht gleich interpretiert werden können. Die skalar-invariante Modellierung (fit3), bei der neben den Faktorladungen auch die Intercepts über die Gruppen hinweg gleichgesetzt werden, führt zu einer weiteren, hochsignifikanten Verschlechterung der Modellgüte (Δχ²(4) = 25.03, p < .001). Der RMSEA-Wert steigt von 0.103 auf 0.187, was darauf hinweist, dass das Modell die Daten nun sehr schlecht beschreibt. Zusammenfassend zeigt sich, dass weder metrische noch skalare Invarianz vollständig gegeben sind. Dies bedeutet, dass das Messinstrument in den beiden Schulen nicht in gleicher Weise funktioniert – insbesondere die Faktorladungen und Intercepts variieren, was Vergleiche der latenten Mittelwerte problematisch macht.
+
+```
+
+#### Mediation
+
+
+#### Latente Wachstumskurvenmodelle (vgl. LMM)
+
