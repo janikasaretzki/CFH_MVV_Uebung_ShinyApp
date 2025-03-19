@@ -175,9 +175,8 @@ diese Gelegenheit, um in Ihrem eigenen Tempo zu üben und zu lernen.</p>
 RStudio!</p>
 <p>Stephan Goerigk und Janika Saretzki</p>
 </div>
-<div id="section-mehrebenenanalyse---lineare-gemischte-modelle"
-class="section level2">
-<h2>Mehrebenenanalyse - Lineare gemischte Modelle</h2>
+<div id="section-lmm---intro" class="section level2">
+<h2>LMM - Intro</h2>
 <p>In dieser Übung untersuchen Sie, ob sich die Mathematikleitung
 zwischen Schulen unterscheidet und wie sich verschiedene Variablen auf
 diese Leistung auswirken. Dafür wenden wir schrittweise verschiedene
@@ -208,9 +207,10 @@ PRACAD (Anteil der Schüler im akademischen Track), DISCLIM
 (wahrgenommene Diziplinprobleme), MeanSES (durchschnittlicher
 sozioökonomischer Status der Schule)</p></li>
 </ul>
-<div id="section-einfaches-lineares-regressionsmodell"
-class="section level3">
-<h3>Einfaches lineares Regressionsmodell</h3>
+</div>
+<div id="section-lmm---einfaches-lineares-regressionsmodell"
+class="section level2">
+<h2>LMM - Einfaches lineares Regressionsmodell</h2>
 <p>Zunächst berechnen wir ein <strong>klassisches lineares
 Regressionsmodell</strong>, in dem die Mathematikleistung (MathAch)
 durch die Schule (School) vorhergesagt wird. Damit überprüfen wir, ob es
@@ -241,9 +241,9 @@ summary(model1)
 # Insgesamt bestätigt das Modell, dass die Schule eine zentrale Rolle für die Mathematikleistung spielt, wobei ein gemischtes Modell notwendig ist, um zufällige und feste Effekte zu unterscheiden.</code></pre>
 </div>
 </div>
-<div id="section-unconditional-random-effects-model-urem"
-class="section level3">
-<h3>Unconditional Random Effects Model (UREM)</h3>
+<div id="section-lmm---unconditional-random-effects-model-urem"
+class="section level2">
+<h2>LMM - Unconditional Random Effects Model (UREM)</h2>
 <p>Berechnen Sie nun ein gemischtes lineares Modell mit zufälligem
 Intercept, um zu untersuchen, wie viel der Gesamtvarianz der
 Mathematikleistung (MatchAch) durch Unterschiede zwischen den Schulen
@@ -270,8 +270,10 @@ summary(model2)
 
 # Das Modell zeigt, dass die durchschnittliche Mathematikleistung (MathAch) über alle Schulen hinweg 12.64 beträgt (Intercept). Die zwischen-schulische Varianz beträgt 8.614, während die innerhalb-schulische Varianz (Residuen) 39.148 beträgt. Das bedeutet, dass es Unterschiede zwischen den Schulen gibt, aber ein Großteil der Varianz innerhalb der Schulen liegt.</code></pre>
 </div>
-<div id="section-intra-class-correlation-icc" class="section level4">
-<h4>Intra-Class-Correlation (ICC)</h4>
+</div>
+<div id="section-lmm---intra-class-correlation-icc"
+class="section level2">
+<h2>LMM - Intra-Class-Correlation (ICC)</h2>
 <p>Berechnen Sie die Intra-Klassen-Korrelation (ICC), um zu
 quantifizieren, wie viel der Gesamtvarianz in der Mathematikleistung
 (MathAch) durch Unterschiede zwischen den Schulen erklärt wird. Die ICC
@@ -289,8 +291,6 @@ data-lines="0" data-pipe="|&gt;">
 <pre class="text"><code>8.614 / (8.614 + 39.148)
 
 # Die berechnete Intra-Klassen-Korrelation (ICC) beträgt 0.18, was bedeutet, dass 18 % der Gesamtvarianz in der Mathematikleistung durch Unterschiede zwischen den Schulen erklärt werden können, während die verbleibenden 82 % auf individuelle Unterschiede innerhalb der Schulen zurückzuführen sind. Dies bestätigt, dass die Schulebene eine wichtige Rolle spielt, aber ein großer Teil der Variation durch schülerbezogene Faktoren bedingt ist, sodass ein Mehrebenenmodell zur simultanen Berücksichtigung beider Ebenen gerechtfertigt ist.</code></pre>
-</div>
-</div>
 </div>
 <div id="section-random-intercept-random-slope-modell"
 class="section level3">

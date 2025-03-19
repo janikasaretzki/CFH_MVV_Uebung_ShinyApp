@@ -81,7 +81,7 @@ Viel Erfolg und Spaß beim Entdecken der Möglichkeiten mit R und RStudio!
 
 Stephan Goerigk und Janika Saretzki
 
-## Mehrebenenanalyse - Lineare gemischte Modelle
+## LMM - Intro
 In dieser Übung untersuchen Sie, ob sich die Mathematikleitung zwischen Schulen unterscheidet und wie sich verschiedene Variablen auf diese Leistung auswirken. Dafür wenden wir schrittweise verschiedene **lineare gemischte Modelle (LMMs)** an.
 
 Wir beginnen mit einem **einfachen Modell**, das überprüft, ob sich die durchschnittliche Mathematikleistung zwischen den Schulen unterscheidet. Anschließend erweitern wir das Modell schrittweise um feste und zufällige Effekte, um zu analysieren, ob sich individuelle Unterschiede (z.B. sozioökonomischer Status, Geschlecht) oder schulbezogene Faktoren (z.B. Schulgröße, Schultyp) auf die Mathematikleistung auswirken.
@@ -96,7 +96,7 @@ Für die nachfolgenden Analysen verwenden wir den Datensatz LMM.csv, der Informa
 
 * **Ebene 2: Schulebene, Level-2-Variablen:** School (Schul-ID), Size (Schulgröße), Sector (Schultyp: Public vs. Catholic), PRACAD (Anteil der Schüler im akademischen Track), DISCLIM (wahrgenommene Diziplinprobleme), MeanSES (durchschnittlicher sozioökonomischer Status der Schule)
 
-### Einfaches lineares Regressionsmodell
+## LMM - Einfaches lineares Regressionsmodell
 Zunächst berechnen wir ein **klassisches lineares Regressionsmodell**, in dem die Mathematikleistung (MathAch) durch die Schule (School) vorhergesagt wird. Damit überprüfen wir, ob es erkennbare Unterschiede zwischen den Schulen gibt.
 
 **Aufgabe:** Lesen Sie den Datensatz LMM.csv über GitHub ein. Schätzen Sie anschließend ein einfaches lineares Modell, in dem MathAch durch School als kategorial Variable vorhergesagt wird, um zu überprüfen, ob es auf den ersten Blick erkennbare Unterschiede zwischen den Schulen gibt.
@@ -122,7 +122,7 @@ summary(model1)
 
 ```
 
-### Unconditional Random Effects Model (UREM)
+## LMM - Unconditional Random Effects Model (UREM)
 Berechnen Sie nun ein gemischtes lineares Modell mit zufälligem Intercept, um zu untersuchen, wie viel der Gesamtvarianz der Mathematikleistung (MatchAch) durch Unterschiede zwischen den Schulen erklärt wird. 
 
 Verwenden Sie dazu die lmer()-Funktion aus dem lme4-Paket und schätzen Sie ein Modell mit MathAch als abhängige Variable und einem zufälligen Intercept für School.
@@ -147,7 +147,7 @@ summary(model2)
 
 ```
 
-#### Intra-Class-Correlation (ICC)
+## LMM - Intra-Class-Correlation (ICC)
 Berechnen Sie die Intra-Klassen-Korrelation (ICC), um zu quantifizieren, wie viel der Gesamtvarianz in der Mathematikleistung (MathAch) durch Unterschiede zwischen den Schulen erklärt wird. Die ICC gibt an, welcher Anteil der Gesamtvarianz auf die Schulebene zurückzuführen ist und damit den Einfluss der hierarchischen Struktur auf die Mathematikleistung widerspiegelt.
 
 ```{r ICC, exercise=TRUE}
