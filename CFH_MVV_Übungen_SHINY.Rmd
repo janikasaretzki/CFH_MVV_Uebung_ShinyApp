@@ -74,6 +74,8 @@ Diese interaktive Plattform wurde speziell für den Kurs **Empirisch-wissenschaf
 
 Auf dieser Plattform finden Sie eine Vielzahl von Beispielen und Übungen, die darauf ausgelegt sind, Ihr Verständnis von R und RStudio zu verbessern. Jede Übung ist darauf ausgerichtet, spezifische Konzepte und Techniken zu vermitteln, sodass Sie Ihr Wissen erweitern und festigen können.
 
+Wie auch in der Vorlesung sind die Themen den großen Gruppen **Lineare gemischte Modelle (LMM), Gruppierung (G) und Multivariate (latente) Modellierung (MLM)** zugeordnet. Jeder Teil beginnt mit einem kurzen Intro, das die wichtigsten Konzepte einführt, und ist entsprechend im Menü gekennzeichnet. So behalten Sie den Überblick und können gezielt in die Themen einsteigen, die für Ihr Portfolio oder Ihre Interessen besonders relevant sind.
+
 Beginnen Sie nun, indem Sie eine der verfügbaren Übungen auswählen. Die interaktive Oberfläche ermöglicht es Ihnen, sofort Feedback zu Ihren Lösungen zu erhalten und bei Bedarf Änderungen vorzunehmen. Nutzen Sie diese Gelegenheit, um in Ihrem eigenen Tempo zu üben und zu lernen.
 
 
@@ -88,6 +90,8 @@ Wir beginnen mit einem **einfachen Modell**, das überprüft, ob sich die durchs
 
 Am Ende dieser ersten Übungsreihe werden Sie nicht nur verschiedene **Mehrebenenmodelle** (z.B. **Random-Intercept- und Random-Slope-Modelle**) beherrschen, sondern auch erste Einblicke in **Wachstumskurvenmodelle** gewinnen, die mit denselben Methoden geschätzt werden können.
 
+**Hinweis: Einige der Übungen zu den linearen gemischten Modellen basieren auf Ressourcen des Lehrstuhls Psychologische Methodenlehre und Diagnostik, Department Psychologie, Ludwig-Maximilians-Universität München (Open Educational Resources), https://www.lmu.de/psy/de/lehrstuehle/methoden/. CC-BY-SA.**
+
 <hr style="border: 0.1px solid grey;">
 
 Für die nachfolgenden Analysen verwenden wir den Datensatz LMM.csv, der Informationen zu 160 Schulen und 7.185 Schülern enthält. Der Datensätz besteht aus zwei Ebenen:
@@ -96,7 +100,7 @@ Für die nachfolgenden Analysen verwenden wir den Datensatz LMM.csv, der Informa
 
 * **Ebene 2: Schulebene, Level-2-Variablen:** School (Schul-ID), Size (Schulgröße), Sector (Schultyp: Public vs. Catholic), PRACAD (Anteil der Schüler im akademischen Track), DISCLIM (wahrgenommene Diziplinprobleme), MeanSES (durchschnittlicher sozioökonomischer Status der Schule)
 
-## LMM - Einfaches lineares Regressionsmodell
+## Einfaches lineares Regressionsmodell
 Zunächst berechnen wir ein **klassisches lineares Regressionsmodell**, in dem die Mathematikleistung (MathAch) durch die Schule (School) vorhergesagt wird. Damit überprüfen wir, ob es erkennbare Unterschiede zwischen den Schulen gibt.
 
 **Aufgabe:** Lesen Sie den Datensatz LMM.csv über GitHub ein. Schätzen Sie anschließend ein einfaches lineares Modell, in dem MathAch durch School als kategorial Variable vorhergesagt wird, um zu überprüfen, ob es auf den ersten Blick erkennbare Unterschiede zwischen den Schulen gibt.
@@ -114,7 +118,7 @@ data = read.csv("https://raw.githubusercontent.com/janikasaretzki/CFH_MVV_Uebung
 names(data)
 colSums(is.na(data)) # Keine fehlenden Werte (NAs) im Datensatz
 
-model1 = lm(MathAch ~ 0 + School, data=data)
+model1 = lm(MathAch ~ as.factor(School), data=data)
 summary(model1)
 
 # Das Modell zeigt, dass 81,76% der Varianz in der Mathematikleistung (MathAch) durch Unterschiede zwischen den Schulen erklärt werden, was auf deutliche Leistungsdifferenzen hinweist. Der F-Test ist hochsignifikant (p < 2.2e-16), was bedeutet, dass die Schule einen systematischen Einfluss auf die Mathematikleistung hat. Die Residualstandardabweichung von 6.256 zeigt, dass noch eine beträchtliche Variation innerhalb der Schulen besteht. Die geschätzten Schul-spezifischen Koeffizienten deuten darauf hin, dass einige Schulen deutlich höhere oder niedrigere Durchschnittswerte aufweisen als andere. 
@@ -122,7 +126,7 @@ summary(model1)
 
 ```
 
-## LMM - Unconditional Random Effects Model (UREM)
+## Unconditional Random Effects Model (UREM)
 Berechnen Sie nun ein gemischtes lineares Modell mit zufälligem Intercept, um zu untersuchen, wie viel der Gesamtvarianz der Mathematikleistung (MatchAch) durch Unterschiede zwischen den Schulen erklärt wird. 
 
 Verwenden Sie dazu die lmer()-Funktion aus dem lme4-Paket und schätzen Sie ein Modell mit MathAch als abhängige Variable und einem zufälligen Intercept für School.
@@ -147,7 +151,7 @@ summary(model2)
 
 ```
 
-## LMM - Intra-Class-Correlation (ICC)
+### Intra-Class-Correlation (ICC)
 Berechnen Sie die Intra-Klassen-Korrelation (ICC), um zu quantifizieren, wie viel der Gesamtvarianz in der Mathematikleistung (MathAch) durch Unterschiede zwischen den Schulen erklärt wird. Die ICC gibt an, welcher Anteil der Gesamtvarianz auf die Schulebene zurückzuführen ist und damit den Einfluss der hierarchischen Struktur auf die Mathematikleistung widerspiegelt.
 
 ```{r ICC, exercise=TRUE}
@@ -162,7 +166,7 @@ Berechnen Sie die Intra-Klassen-Korrelation (ICC), um zu quantifizieren, wie vie
 
 ```
 
-### Random Intercept, Random Slope Modell
+## Random Intercept, Random Slope Modell
 Testen Sie nun die Hypothese, dass die Mathematikleistung (MathAch) mit dem sozioökonomischen Status der Eltern (SES) zusammenhängt. Dazu wird ein Random Intercept, Random Slope Modell geschätzt, in dem sowohl der durchschnittliche Leistungsunterschied zwischen den Schulen als auch die Variation des SES-Effekts zwischen den Schulen berücksichtigt werden.
 
 ```{r LMM3, exercise=TRUE}
@@ -185,7 +189,7 @@ summary(model3)
 
 ```
 
-### Random Intercept, Random Slope Modell mit Interaktionseffekt
+## Random Intercept, Random Slope Modell mit Interaktionseffekt
 Testen Sie nun die Hypothese, dass der Einfluss des sozioökonomischen Status der Eltern (SES) auf die Mathematikleistung (MathAch) zwischen den Schulen variiert. Dazu wird ein Random Intercept, Random Slope Modell geschätzt, das sowohl die durchschnittlichen Leistungsunterschiede zwischen den Schulen als auch die Variation des SES-Effekts zwischen den Schulen berücksichtigt.
 
 ```{r LMM4, exercise=TRUE}
@@ -205,28 +209,26 @@ summary(model4)
 
 ```
 
-### Wachstumskurvenmodelle
+## Wachstumskurvenmodelle
 
-### Einfaches Wachstumskurvenmodell (ohne Prädiktor)
+## Einfaches Wachstumskurvenmodell (ohne Prädiktor)
 
-#### Random Intercept, Fixed Slope Model
+### Random Intercept, Fixed Slope Model
 
-#### Random Intercept, Random Slope Model
+### Random Intercept, Random Slope Model
 
-### Konditionales Wachstumskurvenmodell (mit Prädiktor)
+## Konditionales Wachstumskurvenmodell (mit Prädiktor)
 
-#### Random Intercept, Random Slope Model (2 Gruppen)
+### Random Intercept, Random Slope Model (2 Gruppen)
 
-#### Random Intercept, Random Slope Model (3 Gruppen)
+### Random Intercept, Random Slope Model (3 Gruppen)
 
-### Poweranalyse
+## Poweranalyse
 
 ---
 
 ## Gruppieren
 ### Clusteranalyse
-
-
 
 ### Faktorenanalyse
 Das NEO-Fünf-Faktoren-Inventar (NEO-FFI) ist ein psychometrisches Instrument zur Erfassung der fünf grundlegenden Persönlichkeitsdimensionen Neurotizismus, Extraversion, Offenheit für Erfahrungen, Verträglichkeit und Gewissenhaftigkeit. In den folgenden Übungen soll untersucht werden, ob sich diese Struktur in den gegebenen Daten widerspiegelt.
