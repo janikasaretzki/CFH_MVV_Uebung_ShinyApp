@@ -74,7 +74,7 @@ Diese interaktive Plattform wurde speziell für den Kurs **Empirisch-wissenschaf
 
 Auf dieser Plattform finden Sie eine Vielzahl von Beispielen und Übungen, die darauf ausgelegt sind, Ihr Verständnis von R und RStudio zu verbessern. Jede Übung ist darauf ausgerichtet, spezifische Konzepte und Techniken zu vermitteln, sodass Sie Ihr Wissen erweitern und festigen können.
 
-Wie auch in der Vorlesung sind die Themen den großen Gruppen **Lineare gemischte Modelle (LMM), Gruppierung (G) und Multivariate (latente) Modellierung (MLM)** zugeordnet. Jeder Teil beginnt mit einem kurzen Intro, das die wichtigsten Konzepte einführt, und ist entsprechend im Menü gekennzeichnet. So behalten Sie den Überblick und können gezielt in die Themen einsteigen, die für Ihr Portfolio oder Ihre Interessen besonders relevant sind.
+Wie auch in der Vorlesung sind die Themen den großen Gruppen **Lineare gemischte Modelle (engl. Linear Mixed Models, LMMs), Gruppierung (G) und Multivariate (latente) Modellierung (MLM)** zugeordnet. Jeder Teil beginnt mit einem kurzen Intro, das die wichtigsten Konzepte einführt, und ist entsprechend im Menü gekennzeichnet. So behalten Sie den Überblick und können gezielt in die Themen einsteigen, die für Ihr Portfolio oder Ihre Interessen besonders relevant sind.
 
 Beginnen Sie nun, indem Sie eine der verfügbaren Übungen auswählen. Die interaktive Oberfläche ermöglicht es Ihnen, sofort Feedback zu Ihren Lösungen zu erhalten und bei Bedarf Änderungen vorzunehmen. Nutzen Sie diese Gelegenheit, um in Ihrem eigenen Tempo zu üben und zu lernen.
 
@@ -83,7 +83,7 @@ Viel Erfolg und Spaß beim Entdecken der Möglichkeiten mit R und RStudio!
 
 Stephan Goerigk und Janika Saretzki
 
-## LMM - Intro
+## Linear Mixed Models - Intro
 In dieser Übung untersuchen Sie, ob sich die Mathematikleitung zwischen Schulen unterscheidet und wie sich verschiedene Variablen auf diese Leistung auswirken. Dafür wenden wir schrittweise verschiedene **lineare gemischte Modelle (LMMs)** an.
 
 Wir beginnen mit einem **einfachen Modell**, das überprüft, ob sich die durchschnittliche Mathematikleistung zwischen den Schulen unterscheidet. Anschließend erweitern wir das Modell schrittweise um feste und zufällige Effekte, um zu analysieren, ob sich individuelle Unterschiede (z.B. sozioökonomischer Status, Geschlecht) oder schulbezogene Faktoren (z.B. Schulgröße, Schultyp) auf die Mathematikleistung auswirken.
@@ -227,15 +227,15 @@ summary(model4)
 
 ---
 
-## Gruppieren
-### Clusteranalyse
+## Gruppieren - Intro
+## Clusteranalyse
 
-### Faktorenanalyse
+## Faktorenanalyse
 Das NEO-Fünf-Faktoren-Inventar (NEO-FFI) ist ein psychometrisches Instrument zur Erfassung der fünf grundlegenden Persönlichkeitsdimensionen Neurotizismus, Extraversion, Offenheit für Erfahrungen, Verträglichkeit und Gewissenhaftigkeit. In den folgenden Übungen soll untersucht werden, ob sich diese Struktur in den gegebenen Daten widerspiegelt.
 
 **Hinweis: Die Daten wurden bereits korrigiert und richtig gepolt, sodass eine direkte Anwendung möglich ist.**
 
-#### Explorative Faktorenanalyse (EFA)
+### Explorative Faktorenanalyse (EFA)
 In dieser Aufgabe sollen Sie sich in die Rolle der ursprünglichen Forscher:innen versetzen, die zunächst untersuchen mussten, welche Faktoren in den Daten besteht. Dadurch gewinnen Sie ein besseres Verständnis für die methodische Herangehensweise und Herausforderungen bei der Modellbestimmung.
 
 **Aufgabe**
@@ -296,7 +296,7 @@ fa(data, nfactors = 3, fm = "ml", rotate = "promax")$communalities # Kommunalit�
 ```
 
 
-#### Konfirmatorische Faktorenanalyse (CFA)
+### Konfirmatorische Faktorenanalyse (CFA)
 
 **Fragestellung: Lässt sich die Fünf-Faktoren-Struktur des NEO-FFI konfirmatorisch bestätigen?**
 
@@ -351,8 +351,8 @@ summary(fit, fit.measures = TRUE, standardized = TRUE)
 
 ```
 
-## Multivariate (latente) Modellierung
-### Strukturgleichungsmodell
+## Multivariate (latente) Modellierung - Intro
+## Strukturgleichungsmodell
 **Fragestellung: Kann Offenheit Quantitatives Denken vorhersagen?**
 
 In dieser Übung untersuchen Sie, ob der Persönlichkeitsfaktor Offenheit eine Vorhersagekraft für Quantitatives Denken besitzt. Dafür wird ein Strukturgleichungsmodell geschätzt, in dem Offenheit als latente Variable mit drei Indikatoren modelliert wird und Quantitatives Denken als latente Variable mit drei Indikatoren erfasst wird. 
@@ -486,9 +486,7 @@ summary(fit3, fit.measures = TRUE, standardized = TRUE, rsquare = TRUE)
 
 ```
 
-#### Konfirmatorische Faktorenanalyse
-
-##### Messinvarianzprüfung
+## Messinvarianzprüfung
 Ein zentraler Aspekt der psychometrischen Testung ist die Messinvarianz, also die Frage, ob ein Messinstrument über verschiedene Gruppen hinweg die gleiche Bedeutung hat. In dieser Übung soll untersucht werden, ob die zwei-Faktoren-Struktur des Holzinger-Swineford-Datensatzes für Schüler:innen aus zwei verschiedenen Schulen vergleichbar ist.
 
 **Hintergrund und Modell:** Es wird angenommen, dass die Leistung bei den ersten drei Tests (x1, x2, x3) von einer übergeordneten räumlichen Fähigkeit (Spatial) abhängt, während die Leistung bei den anderen drei Tests (x4, x5, x6) auf eine übergeordnete verbale Fähigkeit (Verbal) zurückzuführen ist. Wir spezifizieren daher das Ihnen im Code-Block bereits vorgegebene konfirmatorisches Faktorenmodell (CFA) mit den zwei latenten Faktoren "Spatial" und "Verbal".
@@ -531,8 +529,7 @@ lavTestLRT(fit1, fit2, fit3)
 
 ```
 
-#### Mediation
+## Mediation
 
-
-#### Latente Wachstumskurvenmodelle (vgl. LMM)
+## Latente Wachstumskurvenmodelle
 
